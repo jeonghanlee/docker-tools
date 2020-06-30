@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+#
+#  author  : Jeong Han Lee
+#  email   : jeonghan.lee@gmail.com
+#  date    : Tuesday, June 30 14:17:59 PDT 2020
+#  version : 0.0.3
+
+declare -gr SC_SCRIPT="$(realpath "$0")";
+declare -gr SC_SCRIPTNAME=${0##*/};
+declare -gr SC_TOP="${SC_SCRIPT%/*}";
+
+set -a
+. ${SC_TOP}/docker_default_target_name.conf
+if [ -r ${SC_TOP}/docker_target_name.local ]; then
+    printf ">>> We've found the local configuration file.\n";
+    printf "    The original TARGET_NAME = %s\n" "${TARGET_NAME}"
+    . ${SC_TOP}/docker_target_name.local
+    printf "    will be overriden with TARGET_NAME = %s\n\n" "${TARGET_NAME}"
+    
+fi
+set +a
+
+
+function usage
+{
+    {
+	echo "";
+	echo "Usage    : $0 [-s IMAGE ID] [-t Release Version] <-u docker hub username> <t docker taget name> <-d>"
+	echo "";
+	echo "               -s : Docker IMAGE ID";
+	echo "               -t : Desired Release Version";
+	echo "               -n : Target name (default:recsync)";
+	echo "               -u : Docker HUB user name (default:jeonghanlee)";
+	echo "               -d : Dry run";
+	echo "";
+	echo " bash $0 -s \"04ac57cc7c72\" -t \"4-v0.1.0\" "
+	echo ""
+    } 1>&2;
+    exit 1;
+}
+
+
+
+options=":s:t:n:u:d"
+DRYRUN="NO";
+
+while getopts "${options}" opt; do
+    case "${opt}" in
+        s) source_image=${OPTARG}   ;;
+        t) target_version=${OPTARG} ;;
+	n) target_name=${OPTARG}    ;;
+	u) USER_NAME=${OPTARG}      ;;
+	d) DRYRUN="YES"             ;;
+	:)
+	    echo "Option -$OPTARG requires an argument." >&2
+	    usage
+	    ;;
+	h)
+	    usage
+	    ;;
+	\?)
+	    echo "Invalid option: -$OPTARG" >&2
+	    usage
+	    ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ -z "${source_image}" ]; then
+    usage;
+fi
+
+if [ -z "${target_version}" ]; then
+    usage;
+fi
+
+if [ -z "${target_name}" ]; then
+    printf ">>> We will use the predefined target name %s\n" ${TARGET_NAME}
+else
+    TARGET_NAME=${target_name};
+fi
+
+if [ -z "${USER_NAME}" ]; then
+    USER_NAME="jeonghanlee"
+fi
+
+
+
+
+target_image=${USER_NAME}/${TARGET_NAME}:${target_version}
+
+
+command1="docker tag ${source_image} ${target_image}"
+command2="docker push ${target_image}"
+run_cmd=""
+
+if [ "$DRYRUN" == "YES" ]; then
+    run_cmd="echo"
+else
+    run_cmd="eval"
+fi
+
+
+printf "\n>>> Tagging....${target_image} at ${source_image}\n";
+${run_cmd} ${command1}
+printf "\n>>> Pushing....${target_image} to hub.docker.com\n";
+${run_cmd} ${command2}
+
+
