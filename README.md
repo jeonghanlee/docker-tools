@@ -1,4 +1,5 @@
 # Collection Tools for Docker Usages
+![Linter Run](https://github.com/jeonghanlee/docker-tools/workflows/Linter%20Run/badge.svg)
 
 ## `docker_shell.bash`
 
