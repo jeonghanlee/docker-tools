@@ -5,20 +5,49 @@
 #  date    : Thursday, July  2 01:16:54 PDT 2020
 #  version : 0.0.4
 
-declare -gr SC_SCRIPT="$(realpath "$0")";
-declare -gr SC_SCRIPTNAME=${0##*/};
-declare -gr SC_TOP="${SC_SCRIPT%/*}";
+declare -gr SC_SCRIPT;
+#declare -gr SC_SCRIPTNAME;
+declare -gr SC_TOP;
+#declare -gr LOGDATE;
+
+SC_SCRIPT="$(realpath "$0")";
+#SC_SCRIPTNAME=${0##*/};
+SC_TOP="${SC_SCRIPT%/*}"
+#LOGDATE="$(date +%y%m%d%H%M)"
 
 set -a
-. ${SC_TOP}/docker_default_target_name.conf
-if [ -r ${SC_TOP}/docker_target_name.local ]; then
-    printf ">>> We've found the local configuration file.\n";
-    printf "    The original TARGET_NAME = %s\n" "${TARGET_NAME}"
-    . ${SC_TOP}/docker_target_name.local
-    printf "    will be overriden with TARGET_NAME = %s\n\n" "${TARGET_NAME}"
-    
+# shellcheck disable=SC1091
+. "${SC_TOP}"/docker_default_target_name.conf
+if [ -r "${SC_TOP}"/docker_target_name.local ]; then
+    printf ">>> We've found the local configuration file.\\n";
+    printf "    The original TARGET_NAME = %s\\n" "${TARGET_NAME}"
+	# shellcheck disable=SC1091
+    . "${SC_TOP}"/docker_target_name.local
+    printf "    will be overriden with TARGET_NAME = %s\\n\\n" "${TARGET_NAME}"
 fi
 set +a
+
+
+function prn_tag 
+{
+	local a="$1"; shift;
+	local b="$1"; shift;
+	printf "\\n>>> Tagging....%s at %s\\n" "${a}" "${b}";
+}
+
+function prn_push 
+{
+	local a="$1"; shift;
+	printf "\\n>>> Pushing...%s at %s\\n" "${a}" "hub.docker.com";
+}
+
+function prn
+{
+	local a="$1"; shift;
+	local b="$1"; shift;
+	prn_tag "$a" "b";
+	prn_push "$a";
+}
 
 
 function usage
@@ -79,7 +108,7 @@ if [ -z "${target_version}" ]; then
 fi
 
 if [ -z "${target_name}" ]; then
-    printf ">>> We will use the predefined target name %s\n" ${TARGET_NAME}
+    printf ">>> We will use the predefined target name %s\\n" "${TARGET_NAME}"
 else
     TARGET_NAME=${target_name};
 fi
@@ -109,12 +138,11 @@ else
 fi
 
 
-printf "\n>>> Tagging....${target_image} at ${source_image}\n";
+prn "${target_image}" "${source_image}";
 ${run_cmd} "${command1}"
-printf "\n>>> Tagging....${target_image_latest} at ${source_image}\n";
-${run_cmd} "${command3}"
-printf "\n>>> Pushing....${target_image} to hub.docker.com\n";
 ${run_cmd} "${command2}"
-printf "\n>>> Pushing....${target_image_latest} to hub.docker.com\n";
+
+prn "${target_image_latest}" "${source_image}";
+${run_cmd} "${command3}"
 ${run_cmd} "${command4}"
 

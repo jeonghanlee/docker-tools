@@ -5,16 +5,19 @@
 #  date    : Thursday, July  2 01:27:18 PDT 2020
 #  version : 0.0.4
 
-declare -gr SC_SCRIPT="$(realpath "$0")"
-declare -gr SC_SCRIPTNAME=${0##*/}
-declare -gr SC_TOP="${SC_SCRIPT%/*}"
-declare -gr LOGDATE="$(date +%y%m%d%H%M)"
+declare -gr SC_SCRIPT;
+#declare -gr SC_SCRIPTNAME;
+declare -gr SC_TOP;
+declare -gr LOGDATE;
+
+SC_SCRIPT="$(realpath "$0")";
+#SC_SCRIPTNAME=${0##*/};
+SC_TOP="${SC_SCRIPT%/*}"
+LOGDATE="$(date +%y%m%d%H%M)"
 
 
-function pushd { builtin pushd "$@" > /dev/null; }
-function popd  { builtin popd  "$@" > /dev/null; }
-
-
+function pushd { builtin pushd "$@" > /dev/null || exit; }
+function popd  { builtin popd  > /dev/null || exit; }
 
 
 declare -g TARGET_NAME=""
@@ -45,7 +48,7 @@ set +a
 
 options=":o:f:i:t:a:v:hd"
 DRYRUN="NO"
-BUILDARG="NO"
+#BUILDARG="NO"
 docker_build_options=""
 docker_file=""
 docker_id=""
@@ -122,10 +125,10 @@ done
 shift $((OPTIND-1))
 
 if [ -z "${docker_build_options}" ]; then
-    printf ">>> We will use the predefined docker build options : %s\n" "${DOCKER_BUILD_OPTS}"
+    printf ">>> We will use the predefined docker build options : %s\\n" "${DOCKER_BUILD_OPTS}"
 else
      DOCKER_BUILD_OPTS="${docker_build_options}"
-     printf ">>> We will use the input docker build options : %s\n" "${DOCKER_BUILD_OPTS}"
+     printf ">>> We will use the input docker build options : %s\\n" "${DOCKER_BUILD_OPTS}"
 fi
 
 if [ -z "${docker_file}" ]; then
@@ -136,24 +139,24 @@ fi
 
 
 if [ -z "${docker_id}" ]; then
-    printf ">>> We will use the predefined docker id : %s\n" "${DOCKER_ID}"
+    printf ">>> We will use the predefined docker id : %s\\n" "${DOCKER_ID}"
 else
     DOCKER_ID="${docker_id}"
-    printf ">>> We will use the input docker id: %s\n"  "${DOCKER_ID}"
+    printf ">>> We will use the input docker id: %s\\n"  "${DOCKER_ID}"
 fi
 
 if [ -z "${target_name}" ]; then
-    printf ">>> We will use the predefined target name: %s\n" "${TARGET_NAME}"
+    printf ">>> We will use the predefined target name: %s\\n" "${TARGET_NAME}"
 else
     TARGET_NAME=${target_name};
-    printf ">>> We will use the input target name: %s\n" "${TARGET_NAME}"
+    printf ">>> We will use the input target name: %s\\n" "${TARGET_NAME}"
 fi
 
 if [ -z "${build_args}" ]; then
-    printf ">>> We will use the predefined build args : %s\n" "${BUILD_ARGS}"
+    printf ">>> We will use the predefined build args : %s\\n" "${BUILD_ARGS}"
 else
     BUILD_ARGS="${build_args}"
-    printf ">>> We will use the input build args : %s\n" "${BUILD_ARGS}"
+    printf ">>> We will use the input build args : %s\\n" "${BUILD_ARGS}"
 fi
 
 if [ -z "${target_version}" ]; then
@@ -171,17 +174,16 @@ for arg in  ${BUILD_ARGS[@]}; do
 done
 
 command="docker build ${DOCKER_BUILD_OPTS} --file ${DOCKER_FILENAME} -t ${target_image} ${docker_build_arg} ."
-run_cmd=""
 
 SRC_TOP=${SC_TOP}/../../
 
 
-pushd ${SRC_TOP}
+pushd ${SRC_TOP} || exit
 if [ "$DRYRUN" == "YES" ]; then
     echo "${command}"
 else
     echo "${command}"
     eval "${command}"
 fi
-popd
+popd || exit
 
