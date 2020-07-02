@@ -24,12 +24,21 @@ docker system prune -a --volumes
 docker system prune
 ```
 
-* `xDockerRun name options`
+* `xDockerRun $name $options`
 
-```bash 
+```bash
+xDockerRun channelfinder -d
+```
+
+```bash
 docker run --network=host ${options} --rm --name="$name"  jeonghanlee/"$name":latest
 ```
 
+* `xDockerPull $name`
+
+```bash
+docker pull jeonghanlee/"$name":latest
+```
 
 ## `push_to_hub.bash`
 
