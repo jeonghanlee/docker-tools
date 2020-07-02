@@ -2,8 +2,8 @@
 #
 #  author  : Jeong Han Lee
 #  email   : jeonghan.lee@gmail.com
-#  date    : Tuesday, June 30 14:17:59 PDT 2020
-#  version : 0.0.3
+#  date    : Thursday, July  2 01:16:54 PDT 2020
+#  version : 0.0.4
 
 declare -gr SC_SCRIPT="$(realpath "$0")";
 declare -gr SC_SCRIPTNAME=${0##*/};
@@ -25,15 +25,19 @@ function usage
 {
     {
 	echo "";
-	echo "Usage    : $0 [-s IMAGE ID] [-t Release Version] <-u docker hub username> <t docker taget name> <-d>"
+	echo "Usage    : $0 [-s IMAGE ID] <-u docker hub username> <-n docker taget name> [-t Release Version] <-p>"
 	echo "";
 	echo "               -s : Docker IMAGE ID";
-	echo "               -t : Desired Release Version";
-	echo "               -n : Target name (default:recsync)";
 	echo "               -u : Docker HUB user name (default:jeonghanlee)";
-	echo "               -d : Dry run";
+	echo "               -n : Target name (default:recsync)";
+	echo "               -t : Desired Release Version";
+	echo "               -p : Push the docker hub (need to do push) ";
 	echo "";
-	echo " bash $0 -s \"04ac57cc7c72\" -t \"4-v0.1.0\" "
+	echo " ---- Dry run (Default)"
+	echo " $ bash $0 -s \"04ac57cc7c72\" -t \"4-v0.1.0\" "
+	echo "";
+	echo " ---- Push it to docker hub"
+	echo " $ bash $0 -s \"04ac57cc7c72\" -t \"4-v0.1.0\" -p"
 	echo ""
     } 1>&2;
     exit 1;
@@ -41,8 +45,8 @@ function usage
 
 
 
-options=":s:t:n:u:d"
-DRYRUN="NO";
+options=":s:t:n:u:p"
+DRYRUN="YES";
 
 while getopts "${options}" opt; do
     case "${opt}" in
@@ -50,7 +54,7 @@ while getopts "${options}" opt; do
         t) target_version=${OPTARG} ;;
 	n) target_name=${OPTARG}    ;;
 	u) USER_NAME=${OPTARG}      ;;
-	d) DRYRUN="YES"             ;;
+	p) DRYRUN="NO"             ;;
 	:)
 	    echo "Option -$OPTARG requires an argument." >&2
 	    usage
@@ -88,22 +92,29 @@ fi
 
 
 target_image=${USER_NAME}/${TARGET_NAME}:${target_version}
-
+target_image_latest=${USER_NAME}/${TARGET_NAME}:latest
 
 command1="docker tag ${source_image} ${target_image}"
 command2="docker push ${target_image}"
+
+command3="docker tag ${source_image} ${target_image_latest}"
+command4="docker push ${target_image_latest}"
 run_cmd=""
 
 if [ "$DRYRUN" == "YES" ]; then
     run_cmd="echo"
 else
+    docker login
     run_cmd="eval"
 fi
 
 
 printf "\n>>> Tagging....${target_image} at ${source_image}\n";
-${run_cmd} ${command1}
+${run_cmd} "${command1}"
+printf "\n>>> Tagging....${target_image_latest} at ${source_image}\n";
+${run_cmd} "${command3}"
 printf "\n>>> Pushing....${target_image} to hub.docker.com\n";
-${run_cmd} ${command2}
-
+${run_cmd} "${command2}"
+printf "\n>>> Pushing....${target_image_latest} to hub.docker.com\n";
+${run_cmd} "${command4}"
 
