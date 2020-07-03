@@ -28,19 +28,23 @@ declare -g DOCKER_FILENAME=""
 
 
 set -a
-. ${SC_TOP}/docker_env_default.conf
-if [ -r ${SC_TOP}/docker_env.local ]; then
-    printf ">>> We've found the local configuration file.\n";
-    printf "    The original DOCKER_ID   = %s\n" "${DOCKER_ID}" 
-    printf "                 TARGET_NAME = %s\n" "${TARGET_NAME}"
-    printf "                 BUILD_ARGS  = %s\n" "${BUILD_ARGS}"
+# shellcheck disable=SC1091
+# shellcheck source=docker_env_default.conf
+. "$SC_TOP/docker_env_default.conf"
+if [ -r "${SC_TOP}"/docker_env.local ]; then
+    printf ">>> We've found the local configuration file.\\n";
+    printf "    The original DOCKER_ID   = %s\\n" "${DOCKER_ID}" 
+    printf "                 TARGET_NAME = %s\\n" "${TARGET_NAME}"
+    printf "                 BUILD_ARGS  = %s\\n" "${BUILD_ARGS}"
     printf "           DOCKER_BUILD_OPTS = %s\n" "${DOCKER_BUILD_OPTS}"
-    . ${SC_TOP}/docker_target_name.local
-    printf "    will be overridden with \n";
-    printf "                 DOCKER_ID   = %s\n" "${DOCKER_ID}"
-    printf "                 TARGET_NAME = %s\n" "${TARGET_NAME}"
-    printf "                 BUILD_ARGS  = %s\n" "${BUILD_ARGS}"
-    printf "           DOCKER_BUILD_OPTS = %s\n" "${DOCKER_BUILD_OPTS}"
+	# shellcheck disable=SC1091
+    # shellcheck source=docker_target_name.local
+    . "$SC_TOP/docker_target_name.local"
+    printf "    will be overridden with \\n";
+    printf "                 DOCKER_ID   = %s\\n" "${DOCKER_ID}"
+    printf "                 TARGET_NAME = %s\\n" "${TARGET_NAME}"
+    printf "                 BUILD_ARGS  = %s\\n" "${BUILD_ARGS}"
+    printf "           DOCKER_BUILD_OPTS = %s\\n" "${DOCKER_BUILD_OPTS}"
 fi
 set +a
 
@@ -127,8 +131,8 @@ shift $((OPTIND-1))
 if [ -z "${docker_build_options}" ]; then
     printf ">>> We will use the predefined docker build options : %s\\n" "${DOCKER_BUILD_OPTS}"
 else
-     DOCKER_BUILD_OPTS="${docker_build_options}"
-     printf ">>> We will use the input docker build options : %s\\n" "${DOCKER_BUILD_OPTS}"
+    DOCKER_BUILD_OPTS="${docker_build_options}"
+    printf ">>> We will use the input docker build options : %s\\n" "${DOCKER_BUILD_OPTS}"
 fi
 
 if [ -z "${docker_file}" ]; then
@@ -166,7 +170,7 @@ fi
 target_image="${DOCKER_ID}/${TARGET_NAME}:${target_version}"
 
 docker_build_arg="";
-for arg in  ${BUILD_ARGS[@]}; do
+for arg in  "${BUILD_ARGS[@]}"; do
     docker_build_arg+="--build-arg";
     docker_build_arg+=" ";
     docker_build_arg+="\"${arg}\"";
@@ -178,7 +182,7 @@ command="docker build ${DOCKER_BUILD_OPTS} --file ${DOCKER_FILENAME} -t ${target
 SRC_TOP=${SC_TOP}/../../
 
 
-pushd ${SRC_TOP} || exit
+pushd "${SRC_TOP}" || exit
 if [ "$DRYRUN" == "YES" ]; then
     echo "${command}"
 else
