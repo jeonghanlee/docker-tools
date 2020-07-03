@@ -10,7 +10,7 @@ function usage
 {
     {
 	echo "";
-	echo "Usage    : $0 [-o JAVA\_OPTIONS] "
+	echo "Usage    : $0 [-o JAVA\\_OPTIONS] "
 	echo "";
 	echo "               -o : additional JVM Options"
 	echo "";

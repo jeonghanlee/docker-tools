@@ -1,4 +1,5 @@
 # Collection Tools for Docker Usages
+
 ![Linter Run](https://github.com/jeonghanlee/docker-tools/workflows/Linter%20Run/badge.svg)
 
 ## `docker_shell.bash`
@@ -13,19 +14,19 @@ source docker_shell.bash
 docker rmi -f $(docker images -a -q)
 ```
 
-* `xDockerPruneAll`
+* `xDockerPruneAll` is alias of the following command:
 
 ```bash
 docker system prune -a --volumes
 ```
 
-* `xDockerPrune`
+* `xDockerPrune` is alias of the following command:
 
 ```bash
 docker system prune
 ```
 
-* `xDockerRun $name $options`
+* `xDockerRun $name $options` is alias of the following command:
 
 ```bash
 xDockerRun channelfinder -d
@@ -35,7 +36,7 @@ xDockerRun channelfinder -d
 docker run --network=host ${options} --rm --name="$name"  jeonghanlee/"$name":latest
 ```
 
-* `xDockerPull $name`
+* `xDockerPull $name` is alias of the following command:
 
 ```bash
 docker pull jeonghanlee/"$name":latest

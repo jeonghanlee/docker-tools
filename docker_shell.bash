@@ -2,7 +2,8 @@
 
 function xDockerImagesDelete
 {
-    local images=$(docker images -a -q)
+    local images;
+    images=$(docker images -a -q);
     docker rmi -f "$images"
 }
 
@@ -24,9 +25,9 @@ function xDockerRun
     local OPTS=( "$@" ); shift;
 
     if [ -z "${name}" ]; then
-        printf "The first argument should be defined as name\n";
+        printf "The first argument should be defined as name\\n";
     else    
-        docker run --network=host ${OPTS[@]} --rm --name="$name"  jeonghanlee/"$name":latest
+        docker run --network=host "${OPTS[@]}" --rm --name="$name"  jeonghanlee/"$name":latest
     fi
 }
 

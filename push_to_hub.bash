@@ -5,10 +5,10 @@
 #  date    : Thursday, July  2 01:16:54 PDT 2020
 #  version : 0.0.4
 
-declare -gr SC_SCRIPT;
-#declare -gr SC_SCRIPTNAME;
-declare -gr SC_TOP;
-#declare -gr LOGDATE;
+declare -g SC_SCRIPT;
+#declare -g SC_SCRIPTNAME;
+declare -g SC_TOP;
+#declare -g LOGDATE;
 
 SC_SCRIPT="$(realpath "$0")";
 #SC_SCRIPTNAME=${0##*/};
@@ -17,12 +17,13 @@ SC_TOP="${SC_SCRIPT%/*}"
 
 set -a
 # shellcheck disable=SC1091
-. "${SC_TOP}"/docker_default_target_name.conf
+# shellcheck source=docker_default_target_name.conf
 if [ -r "${SC_TOP}"/docker_target_name.local ]; then
     printf ">>> We've found the local configuration file.\\n";
     printf "    The original TARGET_NAME = %s\\n" "${TARGET_NAME}"
 	# shellcheck disable=SC1091
-    . "${SC_TOP}"/docker_target_name.local
+	# shellcheck source=docker_target_name.local
+    . "$SC_TOP/docker_target_name.local"
     printf "    will be overriden with TARGET_NAME = %s\\n\\n" "${TARGET_NAME}"
 fi
 set +a
@@ -45,7 +46,7 @@ function prn
 {
 	local a="$1"; shift;
 	local b="$1"; shift;
-	prn_tag "$a" "b";
+	prn_tag "$a" "$b";
 	prn_push "$a";
 }
 
@@ -79,21 +80,31 @@ DRYRUN="YES";
 
 while getopts "${options}" opt; do
     case "${opt}" in
-        s) source_image=${OPTARG}   ;;
-        t) target_version=${OPTARG} ;;
-	n) target_name=${OPTARG}    ;;
-	u) USER_NAME=${OPTARG}      ;;
-	p) DRYRUN="NO"             ;;
-	:)
-	    echo "Option -$OPTARG requires an argument." >&2
-	    usage
+        s) 
+			source_image=${OPTARG}
+			;;
+        t) 
+			target_version=${OPTARG}
+			;;
+		n) 
+			target_name=${OPTARG}
+			;;
+		u) 
+			USER_NAME=${OPTARG}
+			;;
+		p) 
+			DRYRUN="NO"
+			;;
+		:)
+	    	echo "Option -$OPTARG requires an argument." >&2
+	    	usage
 	    ;;
-	h)
-	    usage
+		h)
+	    	usage
 	    ;;
-	\?)
-	    echo "Invalid option: -$OPTARG" >&2
-	    usage
+		\?)
+	    	echo "Invalid option: -$OPTARG" >&2
+	    	usage
 	    ;;
     esac
 done

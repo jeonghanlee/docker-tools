@@ -5,10 +5,10 @@
 #  date    : Thursday, July  2 01:27:18 PDT 2020
 #  version : 0.0.4
 
-declare -gr SC_SCRIPT;
-#declare -gr SC_SCRIPTNAME;
-declare -gr SC_TOP;
-declare -gr LOGDATE;
+declare -g SC_SCRIPT;
+#declare -g SC_SCRIPTNAME;
+declare -g SC_TOP;
+declare -g LOGDATE;
 
 SC_SCRIPT="$(realpath "$0")";
 #SC_SCRIPTNAME=${0##*/};
