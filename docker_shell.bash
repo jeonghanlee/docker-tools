@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-USERNAME="jeonghanlee"
+NAMESPACE="jeonghanlee"
 
 function xDockerImagesDelete
 {
@@ -23,20 +23,20 @@ function xDockerPrune
 
 function xDockerRun
 {
-    local name="$1"; shift;
+    local REPOSITORY="$1"; shift; 
     local OPTS=( "$@" ); shift;
 
-    if [ -z "${name}" ]; then
-        printf "The first argument should be defined as name\\n";
+    if [ -z "${REPOSITORY}" ]; then
+        printf "The first argument should be defined as REPOSITORY\\n";
     else    
-        docker run --network=host "${OPTS[@]}" --rm --name="$name"  "$USERNAME"/"$name":latest
+        docker run --network=host "${OPTS[@]}" --rm --name="$REPOSITORY"  "$NAMESPACE"/"$REPOSITORY":latest
     fi
 }
 
 function xDockerPull
 {
-    local name="$1"; shift;
-    docker pull "$USERNAME"/"$name"
+    local REPOSITORY="$1"; shift;
+    docker pull "$NAMESPACE"/"$REPOSITORY"
 }
 
 function xDockerStop
@@ -47,8 +47,8 @@ function xDockerStop
 
 function xDockerLogin
 {
-    local name="$1"; shift;
-    docker run -i -t --entrypoint /bin/bash "$USERNAME"/"$name"   
+    local REPOSITORY="$1"; shift;
+    docker run -i -t --entrypoint /bin/bash "$NAMESPACE"/"$REPOSITORY"   
 }
 
 function xDockerLogs
@@ -59,8 +59,8 @@ function xDockerLogs
 
 function xDockerInspect
 {
-    local name="$1"; shift;
-    docker inspect "$USERNAME"/"$name"
+    local REPOSITORY="$1"; shift;
+    docker inspect "$NAMESPACE"/"$REPOSITORY"
 }
 
 function xDockerPs
@@ -83,4 +83,16 @@ function xDockerEntrypointIn
 {
     local last_image_id="$1"; shift;
     xDockerLastIdIn "$last_image_id" "--entrypoint" "/bin/sh"
+}
+
+# Credits
+# https://stackoverflow.com/questions/32113330/check-if-imagetag-combination-already-exists-on-docker-hub
+# https://stedolan.github.io/jq/manual/#Basicfilters
+# xDockerTagExist "repository" "tag"
+# xDockerTagExist "channelfinder" "v0.1.1" 
+function xDockerTagExist
+{
+    local REPOSITORY="$1"; shift;
+    local tag="$1"; shift; 
+    curl -s https://hub.docker.com/v2/repositories/"$NAMESPACE"/"$REPOSITORY"/tags/"$tag" | jq -r '.["name"]? // .["message"]?'
 }
