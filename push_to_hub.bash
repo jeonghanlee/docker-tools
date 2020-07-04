@@ -55,19 +55,19 @@ function usage
 {
     {
 	echo "";
-	echo "Usage    : $0 [-s IMAGE ID] <-u docker hub username> <-n docker taget name> [-t Release Version] <-p>"
+	echo "Usage    : $0 [-s IMAGE ID] <-u docker hub username> <-n docker taget name> [-t Release Version] <push>"
 	echo "";
-	echo "               -s : Docker IMAGE ID";
-	echo "               -u : Docker HUB user name (default:jeonghanlee)";
-	echo "               -n : Target name (default:recsync)";
-	echo "               -t : Desired Release Version";
-	echo "               -p : Push the docker hub (need to do push) ";
+	echo "               -s   : Docker IMAGE ID";
+	echo "               -u   : Docker HUB user name (default:jeonghanlee)";
+	echo "               -n   : Target name (default:recsync)";
+	echo "               -t   : Desired Release Version";
+	echo "               push : without push, it is dry-run."
 	echo "";
-	echo " ---- Dry run (Default)"
-	echo " $ bash $0 -s \"04ac57cc7c72\" -t \"4-v0.1.0\" "
+	echo " ---- Dry run"
+	echo " $ bash $0 -s \"04ac57cc7c72\" -u \"jeonghanlee\" -n \"channelfinder\" -t \"v1.0.1\""
 	echo "";
-	echo " ---- Push it to docker hub"
-	echo " $ bash $0 -s \"04ac57cc7c72\" -t \"4-v0.1.0\" -p"
+	echo " ---- Push it to hub.docker.com"
+	echo " $ bash $0 -s \"04ac57cc7c72\" -u \"jeonghanlee\" -n \"channelfinder\" -t \"v1.0.1\" push"
 	echo ""
     } 1>&2;
     exit 1;
@@ -75,8 +75,7 @@ function usage
 
 
 
-options=":s:t:n:u:p"
-DRYRUN="YES";
+options=":s:t:n:u:"
 
 while getopts "${options}" opt; do
     case "${opt}" in
@@ -91,9 +90,6 @@ while getopts "${options}" opt; do
 			;;
 		u) 
 			USER_NAME=${OPTARG}
-			;;
-		p) 
-			DRYRUN="NO"
 			;;
 		:)
 	    	echo "Option -$OPTARG requires an argument." >&2
@@ -120,6 +116,10 @@ fi
 
 if [ -z "${target_name}" ]; then
     printf ">>> We will use the predefined target name %s\\n" "${TARGET_NAME}"
+	if [ -z "${TARGET_NAME}" ]; then
+	printf "    We cannot find the default one, force to use %s\\n" "recsync"
+	TARGET_NAME="recsync"
+	fi
 else
     TARGET_NAME=${target_name};
 fi
@@ -141,13 +141,15 @@ command3="docker tag ${source_image} ${target_image_latest}"
 command4="docker push ${target_image_latest}"
 run_cmd=""
 
-if [ "$DRYRUN" == "YES" ]; then
-    run_cmd="echo"
-else
-    docker login
-    run_cmd="eval"
-fi
-
+case "$1" in
+    push)
+	    docker login;
+    	run_cmd="eval";
+		;;
+	*)		
+	    run_cmd="echo";
+		;;
+esac
 
 prn "${target_image}" "${source_image}";
 ${run_cmd} "${command1}"
