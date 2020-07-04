@@ -76,11 +76,11 @@ function xDockerLastIdIn
 {
     local last_image_id="$1"; shift;
     local OPTS=( "$@" ); shift;
-    docker -it "${OPTS[@]}" "$last_image_id";
+    docker run -i -t  "${OPTS[@]}" "$last_image_id"
 }
 
 function xDockerEntrypointIn
 {
     local last_image_id="$1"; shift;
-    xDockerLastIn "$last_image_id" "--entrypoint /bin/sh"
+    xDockerLastIdIn "$last_image_id" "--entrypoint" "/bin/sh"
 }
