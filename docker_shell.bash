@@ -68,3 +68,19 @@ function xDockerPs
     local OPTS=( "$@" ); shift;
     docker ps  "${OPTS[@]}"
 }
+
+## Very usefule to debug the error exit of building docker images. 
+## the first argument is the last successful layer ID 
+## the second argument is the options
+function xDockerLastIdIn
+{
+    local last_image_id="$1"; shift;
+    local OPTS=( "$@" ); shift;
+    docker -it "${OPTS[@]}" "$last_image_id";
+}
+
+function xDockerEntrypointIn
+{
+    local last_image_id="$1"; shift;
+    xDockerLastIn "$last_image_id" "--entrypoint /bin/sh"
+}
