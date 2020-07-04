@@ -33,7 +33,7 @@ set -a
 . "$SC_TOP/docker_env_default.conf"
 if [ -r "${SC_TOP}"/docker_env.local ]; then
     printf ">>> We've found the local configuration file.\\n";
-    printf "    The original DOCKER_ID   = %s\\n" "${DOCKER_ID}" 
+    printf "    The original DOCKER_ID   = %s\\n" "${DOCKER_ID}"
     printf "                 TARGET_NAME = %s\\n" "${TARGET_NAME}"
     printf "                 BUILD_ARGS  = %s\\n" "${BUILD_ARGS}"
     printf "           DOCKER_BUILD_OPTS = %s\n" "${DOCKER_BUILD_OPTS}"
@@ -190,4 +190,3 @@ else
     eval "${command}"
 fi
 popd || exit
-
