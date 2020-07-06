@@ -33,6 +33,23 @@ function xDockerRun
     fi
 }
 
+
+## Very usefule to debug the error exit of building docker images. 
+## the first argument is the last successful layer ID 
+## the second argument is the options
+function xDockerRunEntryPoint
+{
+    local REPOSITORY="$1"; shift; 
+    local OPTS=( "$@" ); shift;
+
+    if [ -z "${REPOSITORY}" ]; then
+        printf "The first argument should be defined as REPOSITORY\\n";
+    else    
+        docker run -i -t --network=host "${OPTS[@]}" --rm --name="$REPOSITORY" "--entrypoint" "/bin/sh" "$NAMESPACE"/"$REPOSITORY":latest
+    fi
+}
+
+
 function xDockerPull
 {
     local REPOSITORY="$1"; shift;
@@ -96,3 +113,4 @@ function xDockerTagExist
     local tag="$1"; shift; 
     curl -s https://hub.docker.com/v2/repositories/"$NAMESPACE"/"$REPOSITORY"/tags/"$tag" | jq -r '.["name"]? // .["message"]?'
 }
+

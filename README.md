@@ -42,6 +42,12 @@ docker run --network=host ${options} --rm --name="$name"  jeonghanlee/"$name":la
 docker pull jeonghanlee/"$name":latest
 ```
 
+* `xDockerLastIdIn`
+
+```bash
+xDockerLastIdIn eb59f9c86930 "--entrypoint" "/bin/sh" "-v" "$HOME/docker_data:/data"
+```
+
 ## `push_to_hub.bash`
 
 * One can override the default target name via an available options `-n` in push_to_hub or a local file
